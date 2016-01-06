@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!-- saved from url=(0119)https://www.cs.unm.edu/~angel/BOOK/INTERACTIVE_COMPUTER_GRAPHICS/SIXTH_EDITION/CODE/WebGL/7E/10/particleDiffusion2.html -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<script id="vertex-shader1" type="x-shader/x-vertex">
+
+attribute vec4 vPosition1;
+attribute vec2 vTexCoord;
+
+varying vec2 fTexCoord;
+
+void main()
+{
+    gl_Position = vPosition1;
+    fTexCoord = vTexCoord;
+}
+</script>
+
+<script id="vertex-shader2" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition2;
+uniform float pointSize;
+
+void main() 
+{
+    gl_PointSize = pointSize;
+    gl_Position = vPosition2;
+} 
+</script>
+
+<script id="fragment-shader1" type="x-shader/x-fragment">
+
+
+precision mediump float;
+
+uniform sampler2D texture;
+uniform float d;
+uniform float s;
+
+varying vec2 fTexCoord;
+
+void main() 
+{ 
+    float x = fTexCoord.x;
+    float y = fTexCoord.y;
+    gl_FragColor = (texture2D( texture, vec2(x+d, y))
+                   +texture2D( texture, vec2(x, y+d))
+                   +texture2D( texture, vec2(x-d, y))
+                   +texture2D( texture, vec2(x, y-d)))/s;
+                 
+} 
+</script>
+<script id="fragment-shader2" type="x-shader/x-fragment">
+
+precision mediump float;
+
+uniform vec4 color;
+void
+main()
+{
+    gl_FragColor = color;
+
+}
+</script>
+
+
+<script id="xvertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vColor;
+attribute vec4 vNormal;
+attribute  vec2 vTexCoord;
+
+varying vec4 fColor;
+varying vec2 fTexCoord;
+
+uniform mat4 modelingMatrix;
+uniform mat4 viewingMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform vec4 materialAmbient;
+uniform vec4 materialDiffuse;
+uniform vec4 materialSpecular;
+uniform float shininess;
+
+void main()
+{
+  vec4 eye = vec4(0.0, 0.0, -1.0, 1.0);  // The default eye position
+    vec4 L = normalize( lightPosition - vPosition ); // Light vector
+    vec4 N = normalize( vNormal );  // Normal vector
+  vec4 V = normalize( eye - vPosition );    // Eye vector.
+    vec4 H = normalize( L + V );  // Halfway vector in the modified Phong model
+
+
+    // Compute terms in the illumination equation
+    vec4 ambient = materialAmbient;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd * materialDiffuse;
+
+  float Ks = pow( max(dot(N, H), 0.0), shininess );
+  // HW3 hint: complete the next line to compute the specular component
+  // vec4 specular = ...
+  
+    fColor = (ambient + diffuse) * vColor;
+    fTexCoord = vTexCoord;
+    gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vPosition;
+}
+</script>
+
+<script id="xfragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 fColor;  // Note that this will be interpolated between vertices.
+varying vec2 fTexCoord;
+
+uniform sampler2D texture;
+
+void main()
+{
+    gl_FragColor = fColor * texture2D( texture, fTexCoord );
+}
+</script>
+
+<script>
+  window.onload = function()
+  {
+    init();
+    main();
+  };
+</script>
+
+<script type="text/javascript">
+  var num=1;
+
+  function slideshow(num,display)
+  {
+    display.src = "v" + num + ".mp4";
+  }
+</script>
+
+
+<script type="text/javascript" src="./particleDiffusion2_files/webgl-utils.js"></script>
+<script type="text/javascript" src="./particleDiffusion2_files/initShaders.js"></script>
+<script type="text/javascript" src="./particleDiffusion2_files/MV.js"></script>
+<script type="text/javascript" src="./particleDiffusion2_files/script.js"></script>
+<script type="text/javascript" src="./particleDiffusion2_files/particleDiffusion2.js"></script>
+
+<style>
+body{
+  margin:0 auto;
+  width:100vw;
+  height:100vh;
+  overflow: hidden;
+}
+
+#gl-canvas
+{
+  z-index: 1;
+  position: absolute;
+}   
+#xgl-canvas
+{
+  z-index: 2;
+  position: absolute;
+  margin-left: 23vw;
+  margin-right: 23vw;
+  margin-top: 15vh;
+}
+
+nav
+{
+  z-index: 3;
+  width: 100vw;
+  height:15vh;
+  position: absolute;;
+  margin-top: 0;
+  background-color:hsla(0, 84%, 39%,0.5);
+}
+
+li
+{
+  float:left;
+  width:20vw;
+  margin: 0;
+  padding:0;
+  display: inline-block;
+}
+
+#gif
+{
+  margin: 0rem 5rem 0rem 5rem;
+}
+
+#gif:hover
+{
+  filter:alpha(opacity=70); /*IE,透明度50%*/
+  -moz-opacity:0.7; /*Firefox,透明度50%*/
+  opacity:0.7;/*其他浏览器,透明度50%*/
+}
+
+</style>
+
+</head>
+<body >
+  <nav>
+    <li><img src="01.gif" div id="gif" onclick="slideshow(1,bunny_video)"></li>
+    <li><img src="02.gif" div id="gif" onclick="slideshow(2,bunny_video)"></li>
+    <li><img src="03.gif" div id="gif" onclick="slideshow(3,bunny_video)"></li>
+    <li><img src="04.gif" div id="gif" onclick="slideshow(4,bunny_video)"></li>
+    <li><img src="05.gif" div id="gif" onclick="slideshow(5,bunny_video)"></li>
+  </nav>
+  
+  <canvas id="gl-canvas" width="2048" height="700" >
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <canvas id="xgl-canvas" width="700" height="500" >
+    Oops ... your browser doesn't support the HTML5 canvas element
+  </canvas>
+  <video  id="bunny_video" width="320" height="240" controls src="v1.mp4" autoplay='true' loop='true' style='display: none' ></video>
+  
+  
+
+</body></html>
