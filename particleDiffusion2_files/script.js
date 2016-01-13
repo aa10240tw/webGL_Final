@@ -2,14 +2,11 @@ function main()
 {
   var canvas = document.getElementById("xgl-canvas");
   var gl;
-  var xAxis = 0;
-  var yAxis = 1;
-  var zAxis = 2;
   var deltaX;
   var deltaY;
 
-  var axis = 0;
-  var theta = [ 0, 0, 0 ];
+  var flag = true;
+
   var eyePosition = [ 0, 0, 2 ];
 
   // event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
@@ -41,10 +38,10 @@ function main()
     
     var newX = event.clientX;
     var newY = event.clientY;
-    var deltaX = newX - lastMouseX;
+    deltaX = newX - lastMouseX;
     var newRotationMatrix = rotate(deltaX * amortization, 0, 1, 0);
 
-    var deltaY = newY - lastMouseY;
+    deltaY = newY - lastMouseY;
     newRotationMatrix = mult(rotate(deltaY * amortization, 1, 0, 0), newRotationMatrix);
 
     moonRotationMatrix = mult(newRotationMatrix, moonRotationMatrix);
@@ -57,7 +54,7 @@ function main()
 
 
   // ModelView and Projection matrices
-  var modelingLoc, viewingLoc, projectionLoc;
+  var modelingLoc, viewingLoc, projectionLoc,lightMatrixLoc;
   var modeling, viewing, projection;
   
   var numVertices  = 36;
@@ -100,9 +97,8 @@ function main()
   ];
 
   var lightPosition = vec4( 0.0, 10.0, 20.0, 1.0 );
-
-  var materialAmbient = vec4( 0.25, 0.25, 0.25, 1.0 );
-  var materialDiffuse = vec4( 0.8, 0.8, 0.8, 1.0);
+  var materialAmbient = vec4( 0.5, 0.5, 0.5, 1.0 );
+  var materialDiffuse = vec4( 0.7, 0.7, 0.7, 1.0);
   var materialSpecular = vec4( 10.0, 10.0, 1.0, 1.0 );
   var materialShininess = 12.0;
 
@@ -229,7 +225,8 @@ function main()
   // uniform variables in shaders
   modelingLoc   = gl.getUniformLocation(program, "modelingMatrix"); 
   viewingLoc    = gl.getUniformLocation(program, "viewingMatrix"); 
-  projectionLoc = gl.getUniformLocation(program, "projectionMatrix"); 
+  projectionLoc = gl.getUniformLocation(program, "projectionMatrix");
+  lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix");  
 
   gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"), 
      flatten(lightPosition) );
@@ -248,39 +245,58 @@ function main()
   document.onmouseup = handleMouseUp;
   document.onmousemove = handleMouseMove;
   var time_old=0, time_video=0;
+  var x = 0;
+  var y = 0;
+  var z = 0;
   
   render(0);
   
+  var flagTurn = 0;
+  var flagStatus = 1;
   function render(time) 
   {
       var dT=(time-time_old)/1000;
       time_old=time;
+      
+      //========================   切換按鈕時要帥氣的轉一圈旋轉  =============================
+      if(flagStatus != num)
+      {
+          flag = true;
+      }
+
+      if(flag)
+      {
+          modeling = mult(rotate(0,1,0,0),mult(rotate(flagTurn,0,1,0),rotate(0,0,0,1)));
+          flagTurn += 50;
+          if(flagTurn >= 360)
+          {
+            flag = false;flagTurn = 0;flagStatus = num;
+            modeling = mult(rotate(0,1,0,0),mult(rotate(flagTurn,0,1,0),rotate(0,0,0,1)));
+          }
+      }
+      //========================   END切換按鈕時要帥氣的轉一圈旋轉  ==========================
+      
+
+      //===========================滑鼠操作========================================
+      
+
       if(mouseDown)
       {
         modeling = moonRotationMatrix;
       }
-      else
-      {
-        modeling = mult(rotate(theta[xAxis], 1, 0, 0),
-                        mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
-      }
+      
+      //========================   END滑鼠操作=====================================
 
       viewing = lookAt(eyePosition, [0,0,0], [0,1,0]);
 
       projection = perspective(40, 1.0, 1.0, 3.0);
       
-      if(!mouseDown)//Let's Dance
-      {
-        
-      }
-      
       gl.enable(gl.DEPTH_TEST);
-
       gl.uniformMatrix4fv( modelingLoc,   0, flatten(modeling) );
       gl.uniformMatrix4fv( viewingLoc,    0, flatten(viewing) );
       gl.uniformMatrix4fv( projectionLoc, 0, flatten(projection) );
 
-      if (video.currentTime>0 && video.currentTime!==time_video) 
+      if (video.currentTime > 0 && video.currentTime!= time_video) 
       {
         time_video = video.currentTime;
         refresh_texture();

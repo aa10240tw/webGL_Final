@@ -86,25 +86,23 @@ uniform float shininess;
 void main()
 {
   vec4 eye = vec4(0.0, 0.0, -1.0, 1.0);  // The default eye position
-    vec4 L = normalize( lightPosition - vPosition ); // Light vector
-    vec4 N = normalize( vNormal );  // Normal vector
+  vec4 L = normalize( lightPosition - vPosition ); // Light vector
+  vec4 N = normalize( vNormal );  // Normal vector
   vec4 V = normalize( eye - vPosition );    // Eye vector.
-    vec4 H = normalize( L + V );  // Halfway vector in the modified Phong model
+  vec4 H = normalize( L + V );  // Halfway vector in the modified Phong model
 
+  // Compute terms in the illumination equation
+  vec4 ambient = materialAmbient;
 
-    // Compute terms in the illumination equation
-    vec4 ambient = materialAmbient;
-
-    float Kd = max( dot(L, N), 0.0 );
-    vec4  diffuse = Kd * materialDiffuse;
+  float Kd = max( dot(L, N), 0.0 );
+  vec4  diffuse = Kd * materialDiffuse;
 
   float Ks = pow( max(dot(N, H), 0.0), shininess );
-  // HW3 hint: complete the next line to compute the specular component
-  // vec4 specular = ...
+  vec4 specular = Ks * materialSpecular;
   
-    fColor = (ambient + diffuse) * vColor;
-    fTexCoord = vTexCoord;
-    gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vPosition;
+  fColor = (ambient + diffuse + specular) * vColor;
+  fTexCoord = vTexCoord;
+  gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vPosition;
 }
 </script>
 
@@ -130,12 +128,17 @@ void main()
 </script>
 
 <script type="text/javascript">
-  var num=1;
+  
+  var num = 1;
 
-  function slideshow(num,display)
+  function slideshow(numx,display)
   {
-    display.src = "v" + num + ".mp4";
+    display.src = "v" + numx + ".mp4";
+    return numx;
   }
+
+  num = slideshow(num,"bunny_video");
+
 </script>
 
 
@@ -162,16 +165,16 @@ body{
 {
   z-index: 2;
   position: absolute;
-  margin-left: 23vw;
-  margin-right: 23vw;
-  margin-top: 15vh;
+  margin-left: 20vw;
+  margin-right: 20vw;
+  margin-top: 5vh;
 }
 
 nav
 {
   z-index: 3;
-  width: 100vw;
-  height:15vh;
+  width: 10vh;
+  height:100vh;
   position: absolute;;
   margin-top: 0;
   background-color:hsla(0, 84%, 39%,0.5);
@@ -180,7 +183,7 @@ nav
 li
 {
   float:left;
-  width:20vw;
+  width:10vh;
   margin: 0;
   padding:0;
   display: inline-block;
@@ -188,7 +191,7 @@ li
 
 #gif
 {
-  margin: 0rem 5rem 0rem 5rem;
+  margin: 3vh 0vh 3vh 0vh;
 }
 
 #gif:hover
@@ -203,21 +206,20 @@ li
 </head>
 <body >
   <nav>
-    <li><img src="01.gif" div id="gif" onclick="slideshow(1,bunny_video)"></li>
-    <li><img src="02.gif" div id="gif" onclick="slideshow(2,bunny_video)"></li>
-    <li><img src="03.gif" div id="gif" onclick="slideshow(3,bunny_video)"></li>
-    <li><img src="04.gif" div id="gif" onclick="slideshow(4,bunny_video)"></li>
-    <li><img src="05.gif" div id="gif" onclick="slideshow(5,bunny_video)"></li>
+    <li><img src="01.gif" div id="gif" onclick="num = slideshow(1,bunny_video)"></li>
+    <li><img src="02.gif" div id="gif" onclick="num = slideshow(2,bunny_video)"></li>
+    <li><img src="03.gif" div id="gif" onclick="num = slideshow(3,bunny_video)"></li>
+    <li><img src="04.gif" div id="gif" onclick="num = slideshow(4,bunny_video)"></li>
+    <li><img src="05.gif" div id="gif" onclick="num = slideshow(5,bunny_video)"></li>
   </nav>
   
   <canvas id="gl-canvas" width="2048" height="700" >
     Oops ... your browser doesn't support the HTML5 canvas element
   </canvas>
-  <canvas id="xgl-canvas" width="700" height="500" >
+  <canvas id="xgl-canvas" width="750" height="535" >
     Oops ... your browser doesn't support the HTML5 canvas element
   </canvas>
   <video  id="bunny_video" width="320" height="240" controls src="v1.mp4" autoplay='true' loop='true' style='display: none' ></video>
   
-  
-
+</script>
 </body></html>

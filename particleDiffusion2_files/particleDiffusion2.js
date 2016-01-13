@@ -4,9 +4,9 @@ var gl;
 var flag = true;
 var seconds = new Date().getTime() *0.00000000001;
 var texSize = 1024;
-var numPoints = 50;
-var diffuse = 4.0;
-var pointSize = 60;
+var numPoints = 200;
+var pointSize = 30;
+var colorR=1.0,colorG=0.0,colorB=0.0;
 
 
 
@@ -90,7 +90,7 @@ function init()
     gl.useProgram(program2);
    
         gl.uniform1f( gl.getUniformLocation(program2, "pointSize"), pointSize );
-        gl.uniform4f( gl.getUniformLocation(program2, "color"), Math.random(), 0.0, 0.0, 1.0);  
+        gl.uniform4f( gl.getUniformLocation(program2, "color"), Math.random(), Math.random(), Math.random(), 0.7);  
     
    
 
@@ -114,7 +114,6 @@ function init()
        
     gl.uniform1i( gl.getUniformLocation(program1, "texture"), 0 );
     gl.uniform1f( gl.getUniformLocation(program1, "d"), 1/texSize );
-    gl.uniform1f( gl.getUniformLocation(program1, "s"), diffuse );
 
     gl.useProgram(program2);
 
@@ -128,11 +127,13 @@ function init()
     
     render();
 }
-
+var tmp=10;
+var power=1.005;
+var diffuse = 4.0;
 var render = function(){
-
+var x=0,y=0;
+    gl.uniform1f( gl.getUniformLocation(program1, "s"), diffuse );
    // render to texture
-
     gl.useProgram(program1);
    
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer);
@@ -156,7 +157,7 @@ var render = function(){
     gl.useProgram(program2);
 	gl.enableVertexAttribArray(vPosition2);
     gl.vertexAttribPointer( vPosition2, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform4f( gl.getUniformLocation(program2, "color"), 1.0, 0.0, 0.0, Math.random()*0.9); 
+    gl.uniform4f( gl.getUniformLocation(program2, "color"), colorR,colorG, colorB, Math.random()*0.9); 
     gl.drawArrays(gl.POINTS, 4, numPoints/2);
     gl.uniform4f( gl.getUniformLocation(program2, "color"), Math.random(), Math.random(), Math.random(), 0.8);
     gl.drawArrays(gl.POINTS, 4+numPoints/2, numPoints/2);
@@ -169,25 +170,78 @@ var render = function(){
     
 
 // render to display
-
+	var d = new Date();
+	var timeN = d.getSeconds();
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        
     if(flag){gl.bindTexture(gl.TEXTURE_2D, texture2);} 
       else gl.bindTexture(gl.TEXTURE_2D, texture1);
-    var r = 2048/texSize;
-    texSize+=0.0015;
-    if( texSize>=1028)
+    var r = 2200/texSize;
+    if(num==1)
     {
-        texSize=1024;
+    	diffuse=4.0;
+    	colorR=1.0;
+    	colorG=0.0;
+    	colorB=0.0;
     }
-    gl.viewport(0, 0, r*texSize, r*texSize);
+    else if(num==2)
+    {
+    	y=0;
+    	colorR=0.0;
+    	colorG=0.5;
+    	colorB=1.0;
+    	tmp=tmp*power;
+		if(tmp>300+Math.random()*500)
+ 		{
+			power=0.975;
+		}
+		if(tmp<60+Math.random()*100)
+		{
+			power=1.025;
+		}	
+		if(timeN%10==0)
+    	{
+    		diffuse=3.6;
+   		}
+   		else
+   		{
+   			diffuse=4.0;
+   		}
+    }
+    else if(num==3)
+    {
+    	colorR=0.0;
+    	colorG=1.0;
+    	colorB=0.0;
+    	y=-7;
+    }
+    else if(num==4)
+    {
+    	diffuse=4.0;
+    	colorR=1.0;
+    	colorG=1.0;
+    	colorB=0.0;
+    	if(timeN%15>0&&timeN%15<8)
+    	{
+    		x=1+Math.random();
+    		y=x;
+   		}
+    }
+    else
+    {
+    	y=1+Math.random();
+    	diffuse=4.1;
+    	colorR=Math.random();;
+    	colorG=Math.random();;
+    	colorB=Math.random();;
+    }
+    gl.viewport(0, 0, r*texSize-tmp, r*texSize-tmp);
     
     gl.clear( gl.COLOR_BUFFER_BIT );
     
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
     
-    gl.viewport(0,0, texSize, texSize);
+    gl.viewport(x,y, texSize, texSize);
 
     
     gl.useProgram(program1);
@@ -217,7 +271,6 @@ var render = function(){
         var y = Math.floor(20*(vertices[4+i][1]));
         var color = new Uint8Array(4);
         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-        //if(color[1]>128) vertices[4+i][1] = 0;
         if(color[1]>200) vertices[4+i][0] = -0.2;
         if(color[1]>128) vertices[4+i][1] = -0.2;
     }
