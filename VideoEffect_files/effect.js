@@ -3,7 +3,7 @@ var gl;
 
 var flag = true;
 var seconds = new Date().getTime() *0.00000000001;
-var texSize = 1024;
+var texSize = 2048;
 var numPoints = 200;
 var pointSize = 30;
 var colorR=1.0,colorG=0.0,colorB=0.0;
@@ -173,7 +173,7 @@ var render = function()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     if(flag){gl.bindTexture(gl.TEXTURE_2D, texture2);} 
       else gl.bindTexture(gl.TEXTURE_2D, texture1);
-    var r = 2200/texSize;
+    var r = 2.2;
     if(num==1)
     {
     	diffuse=4.0;
