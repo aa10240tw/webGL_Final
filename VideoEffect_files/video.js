@@ -5,6 +5,7 @@ function main()
   var deltaX;
   var deltaY;
 
+  var r = 1;// window size
   var flag = true;
 
   var eyePosition = [ 0, 0, 2 ];
@@ -155,7 +156,7 @@ function main()
   //
   //  Configure WebGL
   //
-  gl.viewport( 0, 0, canvas.width, canvas.height );
+  gl.viewport( 0, 0, r*canvas.width, r*canvas.height );
   gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
   //  Load shaders and initialize attribute buffers
