@@ -210,7 +210,7 @@ var render = function()
     	colorR=0.0;
     	colorG=1.0;
     	colorB=0.0;
-    	y=-7;
+    	x=7;
     }
     else if(num==4)
     {
