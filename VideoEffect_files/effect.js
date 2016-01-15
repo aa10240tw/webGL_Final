@@ -8,9 +8,6 @@ var numPoints = 200;
 var pointSize = 30;
 var colorR=1.0,colorG=0.0,colorB=0.0;
 
-
-
-
 var texCoord = [
     vec2(0, 0),
     vec2(0, 1),
@@ -80,7 +77,8 @@ function init()
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2, 0);
     
     var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if(status != gl.FRAMEBUFFER_COMPLETE) alert('Framebuffer Not Complete');
+    if(status != gl.FRAMEBUFFER_COMPLETE) 
+        alert('Framebuffer Not Complete');
     
     for(var i = 0; i<numPoints; i++) 
          vertices[4+i] = vec2(0.5*Math.random()-2.0, 0.5*Math.random()-20.0);
@@ -89,11 +87,9 @@ function init()
     
     gl.useProgram(program2);
    
-        gl.uniform1f( gl.getUniformLocation(program2, "pointSize"), pointSize );
-        gl.uniform4f( gl.getUniformLocation(program2, "color"), Math.random(), Math.random(), Math.random(), 0.7);  
+    gl.uniform1f( gl.getUniformLocation(program2, "pointSize"), pointSize );
+    gl.uniform4f( gl.getUniformLocation(program2, "color"), Math.random(), Math.random(), Math.random(), 0.7);  
     
-   
-
     gl.useProgram(program1);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -102,7 +98,6 @@ function init()
     gl.bufferSubData(gl.ARRAY_BUFFER, 32+8*numPoints, flatten(texCoord));
     
     // buffers and vertex arrays
-    
     
     vPosition1 = gl.getAttribLocation( program1, "vPosition1" );
     gl.enableVertexAttribArray( vPosition1 );
@@ -127,28 +122,31 @@ function init()
     
     render();
 }
+
 var tmp=10;
 var power=1.005;
 var diffuse = 4.0;
-var render = function(){
-var x=0,y=0;
+
+var render = function()
+{
+    var x=0,y=0;
+
     gl.uniform1f( gl.getUniformLocation(program1, "s"), diffuse );
-   // render to texture
+    // render to texture
     gl.useProgram(program1);
-   
+
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer);
-    
-    if(flag) {
+
+    if(flag) 
+    {
         gl.bindTexture(gl.TEXTURE_2D, texture1);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2, 0);
-
     }
-    else {
+    else 
+    {
         gl.bindTexture(gl.TEXTURE_2D, texture2);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture1, 0);
-
-    }
-        
+    }   
     //var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     //if(status != gl.FRAMEBUFFER_COMPLETE) alert('Framebuffer Not Complete');
    
@@ -168,8 +166,7 @@ var x=0,y=0;
     gl.vertexAttribPointer( texLoc, 2, gl.FLOAT, false, 0, 32+8*numPoints);
     gl.vertexAttribPointer( vPosition1, 2, gl.FLOAT, false, 0, 0);
     
-
-// render to display
+    // render to display
 	var d = new Date();
 	var timeN = d.getSeconds();
     gl.generateMipmap(gl.TEXTURE_2D);
@@ -246,10 +243,11 @@ var x=0,y=0;
     
     gl.useProgram(program1);
     
-// move particles in a random direction
-// wrap arounds
+    // move particles in a random direction
+    // wrap arounds
    
-    for(var i=0; i<numPoints; i++) {
+    for(var i=0; i<numPoints; i++) 
+    {
         vertices[4+i][0] += 0.8*(seconds*Math.random()-1.0);
         vertices[4+i][1] += 0.1*(seconds*Math.random()-1.0);
         if(vertices[4+i][0]>1.0) vertices[4+i][0]-= 40.0;
@@ -257,7 +255,9 @@ var x=0,y=0;
         if(vertices[4+i][1]>1.0) vertices[4+i][1]-= 20.0;
         if(vertices[4+i][1]<-1.0) vertices[4+i][1]+= 3.0;
     }
-    for(var i=0; i<numPoints/2; i++) {
+
+    for(var i=0; i<numPoints/2; i++) 
+    {
         var x = Math.floor(10*(vertices[4+i][0]));
         var y = Math.floor(10*(vertices[4+i][1]));
         var color = new Uint8Array(4);
@@ -266,7 +266,9 @@ var x=0,y=0;
         if(color[0]>128) vertices[4+i][0] = 0.5;
         if(color[0]>200) vertices[4+i][1] = 1;
     }
-    for(var i=numPoints/2; i<numPoints; i++) {
+
+    for(var i=numPoints/2; i<numPoints; i++) 
+    {
         var x = Math.floor(20*(vertices[4+i][0]));
         var y = Math.floor(20*(vertices[4+i][1]));
         var color = new Uint8Array(4);
@@ -277,7 +279,7 @@ var x=0,y=0;
 
     gl.bufferSubData(gl.ARRAY_BUFFER,  0, flatten(vertices));
 
-// swap textures
+    // swap textures
 
     flag = !flag;
     
